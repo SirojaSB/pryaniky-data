@@ -26,43 +26,51 @@ function request<T> ({
         },
         ...!!data && { body: JSON.stringify(data) },
     })
-        .then(getJsonOrError);
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json()
+        })
+        .then(info => {
+            return info.data
+        })
 }
 
-const getJsonOrError = async (res: Response) => {
+/*const getJsonOrError = async (res: Response) => {
     if (res.ok){
-        return res.json();
+        return res.json()
     }
     const err = await res.json()
 
     return Promise.reject(err);
-}
+}*/
 
-export const getData = (token: string) => {
-    return request({
+export function getData<T> (token: string) {
+    return request<T>({
         url: '/get',
         method: 'GET',
         token: token,
     })
 }
 
-export const createCell = (token: string, data: DataType) => {
-    return request({
+export function createRow<T> (token: string, data: DataType) {
+    return request<T>({
         url: '/create',
         token,
         data,
     })
 }
 
-export const deleteCell = (token: string, id: string) => {
-    return request({
+export function deleteRow<T> (token: string, id: string) {
+    return request<T>({
         url: `/delete/${id}`,
         token,
     })
 }
 
-export const editCell = (token: string, id: string, data: DataType) => {
-    return request({
+export function editRow<T> (token: string, id: string, data: DataType) {
+    return request<T>({
         url: `/set/${id}`,
         token,
         data

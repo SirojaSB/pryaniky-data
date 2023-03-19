@@ -27,8 +27,8 @@ const Login: React.FC = () => {
 
     const handleLogin = async () => {
         try {
-            const {data}: any = await authorize(values.user, values.password)
-            localStorage.setItem('JWT', data.token)
+            const token = await authorize<string>(values.user, values.password)
+            localStorage.setItem('JWT', token)
         } catch (err) {
             console.log(err)
         }

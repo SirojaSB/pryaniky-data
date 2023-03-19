@@ -1,13 +1,28 @@
 import React, {useState} from "react";
 import {IconButton, TableCell, TableRow} from "@mui/material";
-import {RowsInfoType} from "../../pages/MainPage";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CheckIcon from '@mui/icons-material/Check';
-import useFormWithValidation from "../../utils/useFormWithValidation";
-import {editCell} from "../../utils/TableApi";
 
-const RowOfTable: React.FC<RowsInfoType> = (
+import {RowsInfoType} from "../../pages/MainPage";
+import {deleteRow} from "../../utils/TableApi";
+
+type RowOfTableProps = {
+    id: string;
+    documentName: string;
+    documentType: string;
+    documentStatus: string;
+    employeeNumber: string;
+    employeeSignatureName: string;
+    employeeSigDate: string;
+    companySignatureName: string;
+    companySigDate: string;
+    onEditRow: (arg: boolean) => void;
+    setSelectedRow: ({...args}: RowsInfoType) => void;
+    setRowsInfo: ({...args}: RowsInfoType[]) => void;
+    rowsInfo: RowsInfoType[];
+}
+
+const RowOfTable: React.FC<RowOfTableProps> = (
     {
         id,
         documentName,
@@ -17,41 +32,36 @@ const RowOfTable: React.FC<RowsInfoType> = (
         employeeSignatureName,
         employeeSigDate,
         companySignatureName,
-        companySigDate
+        companySigDate,
+        onEditRow,
+        setSelectedRow,
+        setRowsInfo,
+        rowsInfo
     }) => {
 
-    const [isEdit, setIsEdit] = useState(false)
-
-    const initValues = {
-        documentName,
-        documentType,
-        documentStatus,
-        employeeNumber,
-        employeeSignatureName,
-        employeeSigDate: employeeSigDate.substring(0, 10),
-        companySignatureName,
-        companySigDate: companySigDate.substring(0, 10),
+    const handleEditRow = () => {
+        onEditRow(true)
+        setSelectedRow({
+            id,
+            documentName,
+            documentType,
+            documentStatus,
+            employeeNumber,
+            employeeSignatureName,
+            employeeSigDate,
+            companySignatureName,
+            companySigDate,
+        })
     }
 
-    const {values, handleChange} = useFormWithValidation(initValues)
-
-    const handleClickEdit = () => setIsEdit((isEdit) => !isEdit);
-
-    const editRowInfo = async () => {
+    const handleDeleteRow = async () => {
         const token = localStorage.getItem('JWT')
         try {
             if(token) {
-                await editCell(token, id, {
-                    documentName: values.documentName,
-                    documentType: values.documentType,
-                    documentStatus: values.documentStatus,
-                    employeeNumber: values.employeeNumber,
-                    employeeSignatureName: values.employeeSignatureName,
-                    employeeSigDate: values.employeeSigDate + employeeSigDate.substring(10, 24),
-                    companySignatureName: values.documentName,
-                    companySigDate: values.companySigDate + companySigDate.substring(10, 24),
-                })
-                handleClickEdit()
+                await deleteRow(token, id)
+
+                const otherRow = rowsInfo.filter((item) => item.id !== id)
+                setRowsInfo(otherRow)
             }
         } catch (err) {
             console.log(err)
@@ -61,90 +71,36 @@ const RowOfTable: React.FC<RowsInfoType> = (
     return (
         <TableRow>
             <TableCell align="right">
-                <input
-                    required
-                    name='documentName'
-                    type='text'
-                    value={values.documentName}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {documentName}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='documentType'
-                    type='text'
-                    value={values.documentType}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {documentType}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='documentStatus'
-                    type='text'
-                    value={values.documentStatus}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {documentStatus}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='employeeNumber'
-                    type='text'
-                    value={values.employeeNumber}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {employeeNumber}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='employeeSignatureName'
-                    type='text'
-                    value={values.employeeSignatureName}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {employeeSignatureName}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='employeeSigDate'
-                    type='text'
-                    maxLength={10}
-                    value={values.employeeSigDate}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {employeeSigDate.substring(0, 10)}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='companySignatureName'
-                    type='text'
-                    value={values.companySignatureName}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {companySignatureName}
             </TableCell>
             <TableCell align="right">
-                <input
-                    required
-                    name='companySigDate'
-                    type='text'
-                    maxLength={10}
-                    value={values.companySigDate}
-                    onChange={handleChange}
-                    disabled={!isEdit}/>
+                {companySigDate.substring(0, 10)}
             </TableCell>
             <TableCell align="right">
-                {isEdit ?
-                    <IconButton onClick={editRowInfo} aria-label="edit">
-                        <CheckIcon/>
-                    </IconButton> :
-                    <IconButton onClick={handleClickEdit} aria-label="edit">
-                        <EditIcon/>
-                    </IconButton>}
+                <IconButton type='button' onClick={handleEditRow} aria-label="edit">
+                    <EditIcon/>
+                </IconButton>
             </TableCell>
             <TableCell align="right">
-                <IconButton aria-label="edit">
+                <IconButton type='button' aria-label="edit" onClick={handleDeleteRow}>
                     <DeleteIcon/>
                 </IconButton>
             </TableCell>
