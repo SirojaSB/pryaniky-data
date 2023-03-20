@@ -1,16 +1,19 @@
 import React from "react";
+
 import useFormWithValidation from "../../utils/useFormWithValidation";
-import {RowsInfoType} from "../../pages/MainPage";
 import PopupTemplate from "../PopupTemplate";
-import {createRow} from "../../utils/TableApi";
+import {createRow} from "../../utils/api/TableApi";
+import {RowsInfoType} from "../../utils/types";
+import {ERROR_CREATE_ROW_MESSAGE} from "../../utils/constants";
 
 type RowCreatePopupProps = {
     onClickClose: (arg: boolean) => void;
     setRowsInfo: ({...args}: RowsInfoType[]) => void;
-    rowsInfo: RowsInfoType[]
+    rowsInfo: RowsInfoType[];
+    setIsLoading: (arg: boolean) => void;
 }
 
-const RowCreatePopup: React.FC<RowCreatePopupProps> = ({onClickClose, setRowsInfo, rowsInfo}) => {
+const RowCreatePopup: React.FC<RowCreatePopupProps> = ({onClickClose, setRowsInfo, rowsInfo, setIsLoading}) => {
     const initValues = {
         documentName: '',
         documentType: '',
@@ -21,11 +24,14 @@ const RowCreatePopup: React.FC<RowCreatePopupProps> = ({onClickClose, setRowsInf
         companySignatureName: '',
         companySigDate: '',
     }
+    const [errorCreateRowMessage, setErrorCreateRowMessage] = React.useState('');
 
     const {values, errors, isValid, handleChange} = useFormWithValidation(initValues, initValues)
 
     const createNewRow = async () => {
         const token = localStorage.getItem('JWT')
+        setErrorCreateRowMessage('')
+        setIsLoading(true)
         try {
             if (token) {
                 const newRow = await createRow<RowsInfoType>(token, {
@@ -41,7 +47,10 @@ const RowCreatePopup: React.FC<RowCreatePopupProps> = ({onClickClose, setRowsInf
                 setRowsInfo([...rowsInfo, newRow])
             }
         } catch (err) {
+            setErrorCreateRowMessage(ERROR_CREATE_ROW_MESSAGE)
             console.log(err)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -53,6 +62,7 @@ const RowCreatePopup: React.FC<RowCreatePopupProps> = ({onClickClose, setRowsInf
             handleChange={handleChange}
             isValid={isValid}
             onSubmit={createNewRow}
+            errorMessage={errorCreateRowMessage}
         />
     )
 }

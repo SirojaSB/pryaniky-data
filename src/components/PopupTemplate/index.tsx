@@ -1,23 +1,27 @@
 import styles from "./PopupTemplate.module.scss";
-import {Button, TextField} from "@mui/material";
+import {Button, FormGroup, FormHelperText, TextField} from "@mui/material";
 import React, {FormEvent} from "react";
+import Preloader from "../Preloader";
 
-type PopupTemplateProps ={
+type PopupTemplateProps = {
     onClickClose: (arg: boolean) => void;
-    errors: {[p: string]: string};
-    values: {[p: string]: string};
+    errors: { [p: string]: string };
+    values: { [p: string]: string };
     handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    isValid: boolean,
-    onSubmit: () => Promise<void>
+    isValid: boolean;
+    onSubmit: () => Promise<void>;
+    errorMessage: string;
 }
 
-const PopupTemplate: React.FC<PopupTemplateProps> = ({
+const PopupTemplate: React.FC<PopupTemplateProps> = (
+    {
         onClickClose,
         errors,
         values,
         handleChange,
         isValid,
-        onSubmit
+        onSubmit,
+        errorMessage
     }) => {
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -33,7 +37,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.documentName}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Имя документа"
                         name="documentName"
                         helperText={errors.documentName}
@@ -44,7 +48,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.documentType}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Тип документа"
                         name="documentType"
                         helperText={errors.documentType}
@@ -55,7 +59,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.documentStatus}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Статус"
                         name="documentStatus"
                         helperText={errors.documentStatus}
@@ -66,7 +70,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.employeeNumber}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Число сотрудников"
                         name="employeeNumber"
                         helperText={errors.employeeNumber}
@@ -77,7 +81,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.employeeSignatureName}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Подписи сотрудников"
                         name="employeeSignatureName"
                         helperText={errors.employeeSignatureName}
@@ -87,9 +91,10 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     />
                     <TextField
                         error={!!errors.employeeSigDate}
+                        inputProps={{maxLength: 10, pattern: '[0-9]{4,}-[0-9]{1,2}-[0-9]{1,2}'}}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
-                        label="Дата подписания"
+                        sx={{mb: '10px', width: '300px'}}
+                        label="Дата подписания / гггг-мм-дд"
                         name="employeeSigDate"
                         helperText={errors.employeeSigDate}
                         variant="standard"
@@ -99,7 +104,7 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     <TextField
                         error={!!errors.companySignatureName}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
+                        sx={{mb: '10px', width: '300px'}}
                         label="Подпись компании"
                         name="companySignatureName"
                         helperText={errors.companySignatureName}
@@ -109,17 +114,28 @@ const PopupTemplate: React.FC<PopupTemplateProps> = ({
                     />
                     <TextField
                         error={!!errors.companySigDate}
+                        inputProps={{maxLength: 10, pattern: '[0-9]{4,}-[0-9]{1,2}-[0-9]{1,2}'}}
                         required
-                        sx={{ mb: '10px', width: '300px' }}
-                        label="Дата подписания"
+                        sx={{mb: '10px', width: '300px'}}
+                        label="Дата подписания / гггг-мм-дд"
                         name="companySigDate"
                         helperText={errors.companySigDate}
                         variant="standard"
                         value={values.companySigDate}
                         onChange={handleChange}
                     />
-                    <Button type='submit' variant="contained" disabled={!isValid}>Сохранить</Button>
-                    <Button className={styles.popupClose} type="button" aria-label="Закрыть карточку" onClick={() => onClickClose(false)} variant="contained">Отмена</Button>
+                    <FormHelperText error>{errorMessage}</FormHelperText>
+                    <FormGroup className={styles.popupButtonBox}>
+                        <Button type='submit' variant="contained" disabled={!isValid}>Сохранить</Button>
+                        <Button
+                            type="button"
+                            aria-label="Закрыть карточку"
+                            onClick={() => onClickClose(false)}
+                            variant="contained"
+                        >
+                            Отмена
+                        </Button>
+                    </FormGroup>
                 </form>
             </div>
         </div>

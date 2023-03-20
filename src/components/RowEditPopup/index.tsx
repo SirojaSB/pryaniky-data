@@ -1,17 +1,22 @@
 import React from "react";
+
 import useFormWithValidation from "../../utils/useFormWithValidation";
-import {RowsInfoType} from "../../pages/MainPage";
-import {editRow} from "../../utils/TableApi";
+import {editRow} from "../../utils/api/TableApi";
 import PopupTemplate from "../PopupTemplate";
+import {RowsInfoType} from "../../utils/types";
+import {ERROR_EDITE_ROW_MESSAGE} from "../../utils/constants";
 
 type EditPopupProps = {
     onClickClose: (arg: boolean) => void;
     selectedRow: RowsInfoType;
     setRowsInfo: ({...args}: RowsInfoType[]) => void;
-    rowsInfo: RowsInfoType[]
+    rowsInfo: RowsInfoType[];
+    setIsLoading: (arg: boolean) => void;
 }
 
-const RowEditPopup: React.FC<EditPopupProps> = ({onClickClose, selectedRow, setRowsInfo, rowsInfo}) => {
+const RowEditPopup: React.FC<EditPopupProps> = ({onClickClose, selectedRow, setRowsInfo, rowsInfo, setIsLoading}) => {
+    const [errorEditRowMessage, setErrorEditRowMessage] = React.useState('');
+
     const initValues = {
         documentName: selectedRow.documentName,
         documentType: selectedRow.documentType,
@@ -38,6 +43,8 @@ const RowEditPopup: React.FC<EditPopupProps> = ({onClickClose, selectedRow, setR
 
     const saveEditedData = async () => {
         const token = localStorage.getItem('JWT')
+        setErrorEditRowMessage('')
+        setIsLoading(true)
         try {
             if(token) {
                 const updatedRow = await editRow<RowsInfoType>(token, selectedRow.id, {
@@ -54,7 +61,10 @@ const RowEditPopup: React.FC<EditPopupProps> = ({onClickClose, selectedRow, setR
                 setRowsInfo([...otherRow, updatedRow])
             }
         } catch (err) {
+            setErrorEditRowMessage(ERROR_EDITE_ROW_MESSAGE)
             console.log(err)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -66,6 +76,7 @@ const RowEditPopup: React.FC<EditPopupProps> = ({onClickClose, selectedRow, setR
             handleChange={handleChange}
             isValid={isValid}
             onSubmit={saveEditedData}
+            errorMessage={errorEditRowMessage}
         />
     )
 }

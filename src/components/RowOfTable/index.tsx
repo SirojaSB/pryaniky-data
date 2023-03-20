@@ -1,10 +1,10 @@
-import React, {useState} from "react";
+import React from "react";
 import {IconButton, TableCell, TableRow} from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import {RowsInfoType} from "../../pages/MainPage";
-import {deleteRow} from "../../utils/TableApi";
+import {deleteRow} from "../../utils/api/TableApi";
+import {RowsInfoType} from "../../utils/types";
 
 type RowOfTableProps = {
     id: string;
@@ -20,6 +20,9 @@ type RowOfTableProps = {
     setSelectedRow: ({...args}: RowsInfoType) => void;
     setRowsInfo: ({...args}: RowsInfoType[]) => void;
     rowsInfo: RowsInfoType[];
+    setOpenErrorBar: (arg: boolean) => void;
+    setErrorMessage: (arg: string) => void;
+    setIsLoading: (arg: boolean) => void;
 }
 
 const RowOfTable: React.FC<RowOfTableProps> = (
@@ -36,8 +39,13 @@ const RowOfTable: React.FC<RowOfTableProps> = (
         onEditRow,
         setSelectedRow,
         setRowsInfo,
-        rowsInfo
+        rowsInfo,
+        setOpenErrorBar,
+        setErrorMessage,
+        setIsLoading
     }) => {
+
+
 
     const handleEditRow = () => {
         onEditRow(true)
@@ -56,15 +64,21 @@ const RowOfTable: React.FC<RowOfTableProps> = (
 
     const handleDeleteRow = async () => {
         const token = localStorage.getItem('JWT')
+        setErrorMessage('')
+        setIsLoading(true)
         try {
-            if(token) {
+            if (token) {
                 await deleteRow(token, id)
 
                 const otherRow = rowsInfo.filter((item) => item.id !== id)
                 setRowsInfo(otherRow)
             }
         } catch (err) {
+            setErrorMessage('Не удалось удалить строку')
+            setOpenErrorBar(true)
             console.log(err)
+        } finally {
+            setIsLoading(false)
         }
     }
 

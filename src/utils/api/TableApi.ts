@@ -1,4 +1,4 @@
-export const baseUrl = 'https://test.v5.pryaniky.com/ru/data/v3/testmethods/docs/userdocs'
+const baseUrl = 'https://test.v5.pryaniky.com/ru/data/v3/testmethods/docs/userdocs'
 
 type DataType = {
     [key: string]: string;
@@ -36,15 +36,6 @@ function request<T> ({
             return info.data
         })
 }
-
-/*const getJsonOrError = async (res: Response) => {
-    if (res.ok){
-        return res.json()
-    }
-    const err = await res.json()
-
-    return Promise.reject(err);
-}*/
 
 export function getData<T> (token: string) {
     return request<T>({

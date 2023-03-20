@@ -1,0 +1,5 @@
+export const TYPE_ERROR_LOGIN_MESSAGE = 'Не удалось войти в систему. Возможно вы ввели неверные данные'
+export const ERROR_LOGIN_MESSAGE = 'Не удалось войти в систему. Повторите попытку позже'
+export const ERROR_GET_INFO_MESSAGE = 'Не удалось загрузить данные таблицы'
+export const ERROR_CREATE_ROW_MESSAGE = 'Не удалось создать новую строку'
+export const ERROR_EDITE_ROW_MESSAGE = 'Не удалось изменить данные'

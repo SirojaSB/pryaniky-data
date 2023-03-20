@@ -11,13 +11,25 @@ import {
     TextField
 } from "@mui/material";
 import {Visibility, VisibilityOff} from '@mui/icons-material';
+import {useNavigate} from "react-router-dom";
+
 import useFormWithValidation from "../../utils/useFormWithValidation";
-import {authorize} from "../../utils/AuthApi";
+import {authorize} from "../../utils/api/AuthApi";
+import {ERROR_LOGIN_MESSAGE, TYPE_ERROR_LOGIN_MESSAGE} from "../../utils/constants";
+import Preloader from "../../components/Preloader";
 
-const Login: React.FC = () => {
+type LoginProps = {
+    setIsLoggedIn: (arg: boolean) => void
+}
+
+const Login: React.FC<LoginProps> = ({setIsLoggedIn}) => {
     const [showPassword, setShowPassword] = React.useState(false);
+    const [errorLoginMessage, setErrorLoginMessage] = React.useState('');
+    const [isLoading, setIsLoading] = React.useState(false)
 
-    const {values, errors, isValid, handleChange} = useFormWithValidation({user: '', password: ''}, {user: '', password: ''})
+    const navigate = useNavigate();
+
+    const {values, errors, isValid, handleChange, resetForm} = useFormWithValidation({user: '', password: ''}, {user: '', password: ''})
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -26,11 +38,22 @@ const Login: React.FC = () => {
     };
 
     const handleLogin = async () => {
+        setErrorLoginMessage('')
+        setIsLoading(true)
         try {
             const token = await authorize<string>(values.user, values.password)
             localStorage.setItem('JWT', token)
+            setIsLoggedIn(true)
+            navigate('/')
         } catch (err) {
-            console.log(err)
+            if(err instanceof TypeError) {
+                setErrorLoginMessage(TYPE_ERROR_LOGIN_MESSAGE)
+            } else {
+                setErrorLoginMessage(ERROR_LOGIN_MESSAGE)
+            }
+        } finally {
+            resetForm({user: '', password: ''})
+            setIsLoading(false)
         }
     }
 
@@ -79,9 +102,10 @@ const Login: React.FC = () => {
                     />
                     <FormHelperText>{errors.password}</FormHelperText>
                 </FormControl>
-                {/*<FormHelperText>Error</FormHelperText>*/}
+                <FormHelperText error >{errorLoginMessage}</FormHelperText>
                 <Button type='submit' variant="contained" disabled={!isValid}>Войти</Button>
             </form>
+            {isLoading && <Preloader/>}
         </main>
     )
 }
